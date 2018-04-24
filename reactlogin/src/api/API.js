@@ -1,4 +1,4 @@
-const api = process.env.REACT_APP_CONTACTS_API_URL || 'http://localhost:8000';
+const api = process.env.REACT_APP_CONTACTS_API_URL || 'http://localhost:8000/api';
 
 const headers = {
     'Accept': 'application/json'
@@ -23,7 +23,7 @@ export const doLogin = (payload) =>
         });
 
 export const createUser = (payload) =>
-    fetch(`${api}/users/signup`, {
+    fetch(`${api}/signup`, {
         method: 'POST',
         headers: {
             ...headers,
@@ -43,21 +43,21 @@ export const createUser = (payload) =>
 
 
 export const getFile = (filedata) =>
-    fetch(`${api}/files?filedata=`+JSON.stringify(filedata))
-        .then(res => res.status)
+    fetch(`${api}/files,{
+        method: 'GET',
+        headers: {
+            ...headers,
+            'Content-Type': 'application/json'
+        }
+
+    }).then(res => res.status)
         .catch(error => {
             console.log("This is error.");
             return error;
         });
 
 
-export const getState = (email) =>
-    fetch(`${api}/users?email=`+email)
-        .then(res => res.json())
-        .catch(error => {
-            console.log("This is error.");
-            return error;
-        });
+
 
 export const uploadFile = (payload) =>
     fetch(`${api}/files/upload`, {
