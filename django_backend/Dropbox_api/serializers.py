@@ -2,6 +2,11 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, CharField
 from django.contrib.auth.models import User
 from .models import File
+from rest_framework.authtoken.models import Token
+
+# decorator to generate token when a user signup
+def generate_token(user):
+    Token.objects.create(user = user)
 
 
 class SignupSerializer(ModelSerializer):
@@ -23,6 +28,7 @@ class SignupSerializer(ModelSerializer):
         )
         user_obj.set_password(password)
         user_obj.save()
+        generate_token(user_obj)
         return validated_data
 
 class LoginSerializer(ModelSerializer):
@@ -43,6 +49,5 @@ class FileSerializer(ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('filename','file')
-        #extra_kwargs = {'username': {'read_only': True}}
+        fields = ('filename','file','username')
 

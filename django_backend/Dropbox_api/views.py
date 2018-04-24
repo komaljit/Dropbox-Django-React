@@ -19,6 +19,10 @@ def generate_token(fun):
     return wrapper
 
 
+def get_token(user):
+    return Token.objects.get(user=user)
+
+
 # View for login
 class LoginAPI(APIView):
     serializer_class = LoginSerializer
@@ -40,16 +44,6 @@ class SignupAPI(CreateAPIView):
     serializer_class = SignupSerializer
 
 
-# view for obatinig userlist
-class UserListAPI(APIView):
-
-    def get(self, request, *args, **kwargs):
-        queryset = User.objects.all()
-        print(request.session)
-        serializer = UserListSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-
 # view for logout
 @login_required
 def logoutView(request):
@@ -58,28 +52,28 @@ def logoutView(request):
 
 
 # view for handling file uploads
-class FileApiView(APIView):
+@login_required
+class FileListApiView(APIView):
     serializer_class = FileSerializer
 
     # get list of files
-    # def get(self, request, *args, **kwargs):
-    #     if not request.session.user:
-    #         return Response({"login required"})
-    #     queryset = File.objects.filter(username= request.session.user)
-    #     queryset = File.objects.filter(username=request.username)
-    #     serializer = FileSerializer(queryset, many=True)
-    #     if serializer.is_valid():
-    #         return Response(serializer.data)
-    #     return Response(status=404)
-
-    # add a file
-    def post(self,request):
-        # if not request.session.user:
-        #     return Response({"login required"})
-        serializer = FileSerializer(data = request.data)
-        print(serializer)
+    def get(self, request, *args, **kwargs):
+        queryset = File.objects.filter(username= request.session['user'])
+        serializer = FileSerializer(queryset, many=True)
         if serializer.is_valid():
             return Response(serializer.data)
+        return Response(status=404)
+
+@login_required
+class FileUploadAPIView(APIView):
+    serializer_class = FileSerializer
+    # add a file
+    def post(self,request):
+        if not request.session['user']:
+            return Response({"login required"})
+        serializer = FileSerializer(data = request.data)
+        if serializer.is_valid():
+            return Response(serializer.data, status=200)
         return Response(status=404)
 
 

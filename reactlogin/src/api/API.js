@@ -1,4 +1,4 @@
-const api = process.env.REACT_APP_CONTACTS_API_URL || 'http://localhost:8000';
+const api = process.env.REACT_APP_CONTACTS_API_URL || 'http://localhost:8000/api';
 
 const headers = {
     'Accept': 'application/json'
@@ -23,7 +23,7 @@ export const doLogin = (payload) =>
         });
 
 export const createUser = (payload) =>
-    fetch(`${api}/users/signup`, {
+    fetch(`${api}/signup`, {
         method: 'POST',
         headers: {
             ...headers,
@@ -43,22 +43,17 @@ export const createUser = (payload) =>
 
 
 export const getFile = (filedata) =>
-    fetch(`${api}/files?filedata=`+JSON.stringify(filedata))
-        .then(res => res.status)
+    fetch(`${api}/files,{
+        method: 'GET',
+        headers: {
+            ...headers,
+            'Content-Type': 'application/json'
+        }
+    }).then(res => res.status)
         .catch(error => {
             console.log("This is error.");
             return error;
         });
-
-
-export const getState = (email) =>
-    fetch(`${api}/users?email=`+email)
-        .then(res => res.json())
-        .catch(error => {
-            console.log("This is error.");
-            return error;
-        });
-
 export const uploadFile = (payload) =>
     fetch(`${api}/files/upload`, {
         method: 'POST',
@@ -70,7 +65,6 @@ export const uploadFile = (payload) =>
         console.log("This is error");
         return error;
     });
-
 export const deleteFile = (file) =>
     fetch(`${api}/files/delete`, {
         method: 'POST',
@@ -86,7 +80,6 @@ export const deleteFile = (file) =>
         console.log("This is error");
         return error;
     });
-
 export const makeFolder = (folder) =>
     fetch(`${api}/files/makefolder`, {
         method: 'POST',
@@ -102,8 +95,6 @@ export const makeFolder = (folder) =>
         console.log("This is error");
         return error;
     });
-
-
 export const updateUser = (data) =>
     fetch(`${api}/users/updateuser`, {
         method: 'POST',
@@ -119,7 +110,6 @@ export const updateUser = (data) =>
         console.log("This is error");
         return error;
     });
-
 export const shareFile = (filedata) =>
     fetch(`${api}/files/sharefile`, {
         method: 'POST',
@@ -135,8 +125,6 @@ export const shareFile = (filedata) =>
         console.log("This is error");
         return error;
     });
-
-
 export const logout = () =>
     fetch(`${api}/users/logout`, {
         method: 'POST',
