@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, CharField
+from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
 from .models import File
 from rest_framework.authtoken.models import Token
@@ -49,5 +49,12 @@ class FileSerializer(ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('filename','file','username')
+        fields = ('filename','file')
 
+
+class FileUploadSerializer(ModelSerializer):
+
+    class Meta:
+        model = File
+        fields = ('filename','file')
+        # extra_kwargs = {'username': {'read_only': True}}

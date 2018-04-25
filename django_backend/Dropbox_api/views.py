@@ -1,13 +1,15 @@
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.views import APIView, status
-from .serializers import LoginSerializer, UserListSerializer, SignupSerializer, FileSerializer
+from .serializers import (LoginSerializer, SignupSerializer,
+                          FileSerializer, FileUploadSerializer)
 from .models import File
 from rest_framework.response import Response
 from django.contrib.auth import logout, authenticate, login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from django.core.files.base import ContentFile
 
 # decorator to generate token when a user signup
 def generate_token(fun):
@@ -28,54 +30,60 @@ class LoginAPI(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
+        print(request.user)
         username = request.data.get("username")
         password = request.data.get("password")
         user = authenticate(username=username, password=password)
-        request.session['user'] = username
         if user:
             login(request,user)
             return Response(status=200)
         else:
             return Response({"error": "Wrong Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-
 # view for signup
 class SignupAPI(CreateAPIView):
     serializer_class = SignupSerializer
 
 
+class UpdateUserAPI(UpdateAPIView):
+    serializer_class = User
+
 # view for logout
-@login_required
 def logoutView(request):
     logout(request)
     return Response({"logout":"succesfull"})
 
 
 # view for handling file uploads
-@login_required
+
 class FileListApiView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
     serializer_class = FileSerializer
 
     # get list of files
     def get(self, request, *args, **kwargs):
-        queryset = File.objects.filter(username= request.session['user'])
+        queryset = File.objects.filter(username= request.user)
+        print(queryset)
         serializer = FileSerializer(queryset, many=True)
-        if serializer.is_valid():
-            return Response(serializer.data)
-        return Response(status=404)
+        return Response(serializer.data)
 
-@login_required
+
 class FileUploadAPIView(APIView):
-    serializer_class = FileSerializer
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = FileUploadSerializer
     # add a file
+
     def post(self,request):
-        if not request.session['user']:
-            return Response({"login required"})
-        serializer = FileSerializer(data = request.data)
-        if serializer.is_valid():
-            return Response(serializer.data, status=200)
-        return Response(status=404)
+        return self.create(request)
 
 
+    def create(self, request):
+        file_obj = File(filename = request.data.get('filename'),
+                        file = request.FILES['file'].read(),
+                        username = request.user)
+        file_obj.save()
+        return Response(status=200)
 
 
