@@ -85,4 +85,12 @@ class FileUploadSerializer(ModelSerializer):
     class Meta:
         model = File
         fields = ('filename','file')
-        # extra_kwargs = {'username': {'read_only': True}}
+        extra_kwargs = {'username': {'read_only': True}}
+
+
+class FileDeleteSerializer(ModelSerializer):
+
+    class Meta:
+        model = File
+        fields = ('filename','file')
+        extra_kwargs = {'username': {'read_only': True}}

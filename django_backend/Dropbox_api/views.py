@@ -1,4 +1,4 @@
-from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.views import APIView, status
 from .models import File
 from rest_framework.response import Response
@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer,
+from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer, FileDeleteSerializer,
                           UserDetailSerializer, FileListSerializer, FileUploadSerializer)
 
 
@@ -72,7 +72,8 @@ class UpdateUserAPI(UpdateAPIView):
     serializer_class = UpdateSerializer
 
 
-class DeleteApiView(APIView):
+# view for deleting a account
+class DeleteUserApiView(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -106,6 +107,7 @@ class FileListApiView(APIView):
         return Response(serializer.data, status=200)
 
 
+# view for handling uploading of a file
 class FileUploadAPIView(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -120,3 +122,10 @@ class FileUploadAPIView(APIView):
                         username = request.user)
         file_obj.save()
         return Response(status=204)
+
+
+# view for deleting a file
+class DeleteFileApiview(DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (SessionAuthentication, )
+    serializer_class = FileDeleteSerializer
