@@ -4,6 +4,7 @@ const headers = {
     'Accept': 'application/json'
 };
 
+
 export const doLogin = (payload) =>
     fetch(`${api}/login`, {
         method: 'POST',
@@ -11,17 +12,16 @@ export const doLogin = (payload) =>
             ...headers,
             'Content-Type': 'application/json'
         },
-        /*credentials:'include',*/
+        credentials:'include',
         body: JSON.stringify(payload),
-        credentials:'include'
-    }).then(res => {
-
-        return res.json();
-    })
-        .catch(error => {
-            console.log("This is error");
-            return error;
+        })
+        .then(res => {
+            return res
+        }).catch(error => {
+            console.log(error);
+            // return error;
         });
+
 
 export const createUser = (payload) =>
     fetch(`${api}/signup`, {
@@ -31,9 +31,7 @@ export const createUser = (payload) =>
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload),
-        credentials:'include'
     }).then(res => {
-        console.log(res.status);
         return res.status;
     })
         .catch(error => {
@@ -42,20 +40,20 @@ export const createUser = (payload) =>
         });
 
 
-
 export const getFile = (filedata) =>
     fetch(`${api}/files`,{
         method: 'GET',
         credentials:'include'
-        }).then(res => res.status)
-        .catch(error => {
+        }).then(res =>{
+                return res;
+        }).catch(error => {
             console.log("This is error.");
             return error;
         });
 
 
 export const uploadFile = (payload) =>
-    fetch(`${api}/files/upload`, {
+    fetch(`${api}/file/upload/`, {
         method: 'POST',
         body: payload,
         credentials:'include'
@@ -66,6 +64,19 @@ export const uploadFile = (payload) =>
         return error;
     });
 
+export const getState = (email) =>
+    fetch(`${api}/userdetails`, {
+        method: 'GET',
+        credentials:'include'
+        }).then(res => {
+            if (res.status === 200){
+                console.log(res);
+                return res.text();
+            }
+        }).catch(error => {
+            console.log("This is error.");
+            return error;
+        });
 
 export const updateUser = (data) =>
     fetch(`${api}/updateuser`, {

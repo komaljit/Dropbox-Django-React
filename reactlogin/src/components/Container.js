@@ -4,7 +4,6 @@ import * as API from '../api/API';
 import '../Login.css';
 import SignUp from "./SignUp";
 import Login from "./Login";
-import {afterlogin} from "../actions/index";
 
 
 class Container extends Component {
@@ -12,21 +11,26 @@ class Container extends Component {
         login: "SI",
         message: ''
     };
+
     login = (userdata) =>{
         console.log(userdata);
+        console.log("passed details above");
         API.doLogin(userdata)
-            .then((res)  => {
-            console.log(res);
-                if (res.status == 200){
-                    console.log(res);
-                    localStorage.setItem("email", res.email );
+            .then((res)=>{
+                if (res.status === 200){
+                    localStorage.setItem("username", userdata.username );
+                    console.log(localStorage.getItem('username'));
                     this.props.history.push("/files");
-                } else if (res.status == 401) {
+                }
+                else if (res.status === 400){
                     this.setState({
                         message: "Wrong username or password. Try again..!!"
                     });
                 }
-            });
+            }).catch(error => {
+            console.log(error);
+            return error;
+        });
     };
 
     loginOrSignup = (data) => {
@@ -42,14 +46,11 @@ class Container extends Component {
         API.createUser(userdata)
             .then((status)  => {
                 if (status === 201) {
-
                     this.setState({
-
                         message: "User details saved successfully!"
                     });
-                } else if (status === 401) {
+                } else if (status === 401){
                     this.setState({
-
                         message: "Email already exists!"
                     });
                 }
@@ -76,14 +77,11 @@ class Container extends Component {
                             <Login login={this.login} loginOrSignup={this.loginOrSignup}/>
                         }
 
-
                     </div>
                 </div>
             </div>
 
-    );
-
-
+        );
     }
 }
 

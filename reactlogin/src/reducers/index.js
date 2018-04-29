@@ -6,7 +6,6 @@ import {UPDATE_USER} from "../actions/index";
 
 // https://github.com/reactjs/react-redux/blob/d5bf492ee35ad1be8ffd5fa6be689cd74df3b41e/src/components/createConnect.js#L91
 const initialState = {
-
     firstName: '',
     lastName: '',
     password: '',
@@ -14,14 +13,9 @@ const initialState = {
     contactNo: '',
     interests:'',
     lastLoginTime:'',
-
     files :[],
-
     groups: [],
-
     userLog:[]
-
-
 };
 
 const userdata = (state = initialState, action) => {
@@ -31,20 +25,15 @@ const userdata = (state = initialState, action) => {
 
         case LOGIN :
             return {
+                ...state,
                 firstName: action.payload.firstname,
                 lastName: action.payload.lastname,
                 email: action.payload.email,
                 password: action.payload.password,
-                contactNo: action.payload.contactno,
-                interests:action.payload.interests,
                 lastLoginTime:action.payload.lastlogin,
-
                 files :action.payload.files,
-
-                groups: action.payload.groups,
-
-                userLog:action.payload.userlog
-
+                // groups: action.payload.groups,
+                // userLog:action.payload.userlog
             };
 
         case ADDFILE :
@@ -75,7 +64,6 @@ const userdata = (state = initialState, action) => {
             };
         default :
             return state;
-
     }
 };
 

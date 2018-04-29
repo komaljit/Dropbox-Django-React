@@ -20,9 +20,9 @@ class FileGridList extends Component {
     closeModal(data) {
         console.log(data);
 
-        {data!=""?
+        {data != ""?
 
-            ( data.shareEmail!=""?this.props.sharefile(data):'')
+            ( data.shareEmail != ""? this.props.sharefile(data):'')
             :''}
         this.setState({ isModalOpen: false, showLink: true })
     }

@@ -14,7 +14,8 @@ class LeftNavBar extends Component {
                         onClick={() => this.props.history.push("/userdetails")}>User Profile</button>
                 <hr/>
                 <button className="btn btn-primary btn-block" type="submit"
-                        onClick={() => this.props.history.push("/userlog")}>
+                        // onClick={() => this.props.history.push("/userlog")}
+                    >
                     User Activity
                 </button>
                 <br/>

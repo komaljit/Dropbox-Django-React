@@ -4,9 +4,6 @@ import * as API from '../api/API';
 import '../Login.css';
 import PropTypes from 'prop-types';
 
-import NewerHomePage from "./NewerHomePage";
-
-
 
 class SignUp extends Component {
 
@@ -15,11 +12,10 @@ class SignUp extends Component {
     };*/
 
     state = {
+        password: '',
+        username:'',
         first_name:'',
         last_name:'',
-        password: '',
-        email:'',
-        //contactNo:''
     };
 
 
@@ -45,10 +41,10 @@ class SignUp extends Component {
                        }}/>
 
                 <br/>
-                <input type="email" className="form-control" placeholder="Email" required autoFocus
+                <input type="username" className="form-control" placeholder="email" required autoFocus
                        onChange={(event) => {
                            this.setState({
-                               email: event.target.value
+                               username: event.target.value
                            });
                        }}/>
                 <br/>
@@ -70,10 +66,6 @@ class SignUp extends Component {
                     <a href="#" className="text-center new-account" onClick={() => this.props.loginOrSignup("SI")}>Log In </a>
 
             </div>
-
-
-
-
 
         );
     }

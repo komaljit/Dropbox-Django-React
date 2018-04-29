@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import { Route, withRouter } from 'react-router-dom';
 import * as API from '../api/API';
 import '../Login.css';
-import SignUp from "./SignUp";
 import FileUpload from "./FileUpload";
-import Login from "./Login";
 import Container from "./Container";
 import UserDetails from "./UserDetails";
 import UserLog from "./UserLog";
@@ -44,7 +42,6 @@ class NewerHomePage extends Component {
 
                 <Route exact path="/userdetails" render={() => (
                     //  <FileUpload username={this.state.username}/>
-
                     <UserDetails/>
                 )}/>
 
@@ -52,11 +49,11 @@ class NewerHomePage extends Component {
                     //  <FileUpload username={this.state.username}/>
 
                     <UserLog/>
-                )}/>
+                    )}
+                />
             </div>
 
         );
-
     }
 }
 
