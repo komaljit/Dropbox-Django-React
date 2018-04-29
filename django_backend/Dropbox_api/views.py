@@ -1,14 +1,14 @@
-from rest_framework.generics import CreateAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.views import APIView, status
 from .models import File
 from rest_framework.response import Response
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer,
-                          FileListSerializer, FileUploadSerializer)
+                          UserDetailSerializer, FileListSerializer, FileUploadSerializer)
 
 
 # decorator to generate token when a user signup
@@ -21,6 +21,7 @@ def generate_token(fun):
     return wrapper
 
 
+# In case I want to add token authentication in Dropbox app in the future
 # function to get token
 def get_token(user):
     return Token.objects.get_or_create(user=user)
@@ -29,15 +30,16 @@ def get_token(user):
 # View for login
 class LoginAPI(APIView):
     serializer_class = LoginSerializer
-    permission_classes = (AllowAny,)
+    authentication_classes = (SessionAuthentication, )
 
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
+        print(request.user)
         user = authenticate(username=username, password=password)
+        login(request, user)
         if user:
-            login(request, user)
-            return Response(status=204)
+            return Response({"user" : str(user)},status=200)
         else:
             return Response({"error": "Wrong Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -45,28 +47,44 @@ class LoginAPI(APIView):
 # view for signup
 class SignupAPI(CreateAPIView):
     serializer_class = SignupSerializer
-    permission_classes = (AllowAny,)
+
+
+# view for obtaining user detail
+class UserDetailsView(RetrieveAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer_class()
+        serializer_data = serializer(instance)
+        return Response(serializer_data.data)
+
+    def get_object(self):
+        user = self.request.user
+        return User.objects.get(username=user)
 
 
 class UpdateUserAPI(UpdateAPIView):
-    authentication_classes = (TokenAuthentication)
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = UpdateSerializer
 
 
 class DeleteApiView(APIView):
-    authentication_classes = (TokenAuthentication)
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def delete(self, request):
-        user_obj = User.objects.filter(username='koml')
-        # print(request.user)
+        user_obj = User.objects.get(username=request.user)
+        print("user is deleted" + str(request.user))
         user_obj.delete()
         return Response(status=204)
 
 
 # view for logout
-class logoutView(APIView):
+class LogoutView(APIView):
     serializer_class = LoginSerializer
 
     def get(self, request):
@@ -76,7 +94,7 @@ class logoutView(APIView):
 
 # view for handling file uploads
 class FileListApiView(APIView):
-    authentication_classes = (TokenAuthentication)
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = FileListSerializer
 
@@ -84,13 +102,12 @@ class FileListApiView(APIView):
     def get(self, request, *args, **kwargs):
         print(request.user)
         queryset = File.objects.filter(username= request.user)
-        print(queryset)
         serializer = FileListSerializer(queryset, many=True)
         return Response(serializer.data, status=200)
 
 
 class FileUploadAPIView(APIView):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = FileUploadSerializer
 

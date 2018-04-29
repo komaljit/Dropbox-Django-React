@@ -27,6 +27,7 @@ class SignupSerializer(ModelSerializer):
             first_name = first_name,
             last_name = last_name
         )
+        print(validated_data)
         user_obj.set_password(password)
         user_obj.save()
         generate_token(user_obj)
@@ -65,11 +66,11 @@ class LoginSerializer(ModelSerializer):
         fields = ('username', 'password')
 
 
-class UserListSerializer(ModelSerializer):
+class UserDetailSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'password')
+        fields = ('username','first_name','last_name','last_login')
 
 
 class FileListSerializer(ModelSerializer):
