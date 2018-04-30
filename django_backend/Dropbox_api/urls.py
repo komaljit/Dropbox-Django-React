@@ -4,9 +4,10 @@ from .views import (LoginAPI, FileListApiView,
                     FileUploadAPIView, UpdateUserAPI, UserDetailsView
                     )
 
+
 urlpatterns = [
     url(r'^signup',SignupAPI.as_view(), name='signup'),
-    url(r'^update',UpdateUserAPI.as_view(), name='update_user'),
+    url(r'^updateuser',UpdateUserAPI.as_view(), name='update_user'),
     url(r'^details', UserDetailsView.as_view(), name='userdetails'),
     url(r'^delete',DeleteUserApiView.as_view(), name='delete'),
     url(r'^login',LoginAPI.as_view(), name='login'),
