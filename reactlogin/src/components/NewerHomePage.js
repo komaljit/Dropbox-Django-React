@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 import { Route, withRouter } from 'react-router-dom';
 import * as API from '../api/API';
 import '../Login.css';
-import FileUpload from "./FileUpload";
+// import FileUpload from "./FileUpload";
 import Container from "./Container";
-import UserDetails from "./UserDetails";
-import UserLog from "./UserLog";
+// import UserDetails from "./UserDetails";
+// import UserLog from "./UserLog";
 import dropbox from "./dropbox-img.png";
 import dropboxtitle from "./Dropbox_Log.png";
 
@@ -35,22 +35,24 @@ class NewerHomePage extends Component {
                 )}/>
 
 
-                <Route exact path="/files" render={() => (
-                //  <FileUpload username={this.state.username}/>
-                    <FileUpload/>
-                )}/>
+                {/*<Route exact path="/files" render={() => (*/}
+                {/*//  <FileUpload username={this.state.username}/>*/}
+                    {/*localStorage.getItem('email')?*/}
+                    {/*<FileUpload/> : <Container/>*/}
+                {/*)}/>*/}
 
-                <Route exact path="/userdetails" render={() => (
-                    //  <FileUpload username={this.state.username}/>
-                    <UserDetails/>
-                )}/>
+                {/*<Route exact path="/userdetails" render={() => (*/}
+                    {/*//  <FileUpload username={this.state.username}/>*/}
+                    {/*localStorage.getItem('email')?*/}
+                        {/*<UserDetails/> : <Container/>*/}
+                {/*)}/>*/}
 
-                <Route exact path="/userlog" render={() => (
-                    //  <FileUpload username={this.state.username}/>
-
-                    <UserLog/>
-                    )}
-                />
+                {/*<Route exact path="/userlog" render={() => (*/}
+                    {/*//  <FileUpload username={this.state.username}/>*/}
+                    {/*localStorage.getItem('email')?*/}
+                        {/*<UserLog/> : <Container/>*/}
+                    {/*)}*/}
+                {/*/>*/}
             </div>
 
         );
