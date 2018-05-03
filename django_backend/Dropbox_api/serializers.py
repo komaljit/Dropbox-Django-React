@@ -1,7 +1,6 @@
-from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
-from .models import File
+from .models import File, Folder
 from rest_framework.authtoken.models import Token
 
 
@@ -27,9 +26,9 @@ class SignupSerializer(ModelSerializer):
             first_name = first_name,
             last_name = last_name
         )
-        print(validated_data)
         user_obj.set_password(password)
         user_obj.save()
+        Folder(folder_path = username,username=user_obj)    # creating a virtual base folders to track user files
         generate_token(user_obj)
         return validated_data
 
@@ -58,7 +57,6 @@ class UpdateSerializer(ModelSerializer):
         return validated_data
 
 
-
 class LoginSerializer(ModelSerializer):
 
     class Meta:
@@ -73,19 +71,19 @@ class UserDetailSerializer(ModelSerializer):
         fields = ('username','first_name','last_name','last_login')
 
 
-class FileListSerializer(ModelSerializer):
+class FolderSerializer(ModelSerializer):
 
     class Meta:
-        model = File
-        fields = ('filename','file')
+        model = File, Folder
+        fields = ('filename','file', 'folder_path', 'username')
 
 
 class FileUploadSerializer(ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('filename','file')
-        extra_kwargs = {'username': {'read_only': True}}
+        fields = ('filename','file','folder_path', 'username')
+        # extra_kwargs = {'username': {'read_only': True}}
 
 
 class FileDeleteSerializer(ModelSerializer):
@@ -94,3 +92,10 @@ class FileDeleteSerializer(ModelSerializer):
         model = File
         fields = ('filename','file')
         extra_kwargs = {'username': {'read_only': True}}
+
+
+class MakeFolderSerailizer(ModelSerializer):
+
+    class Meta:
+        Model = Folder
+        fields = ('foldername','folder_path')
