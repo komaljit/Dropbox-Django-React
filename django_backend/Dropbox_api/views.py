@@ -1,6 +1,6 @@
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.views import APIView, status
-from .models import File
+from .models import File, Folder
 from rest_framework.response import Response
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer, FileDeleteSerializer,
-                          UserDetailSerializer, FileListSerializer, FileUploadSerializer)
+                          UserDetailSerializer, FolderSerializer, FileUploadSerializer, MakeFolderSerailizer)
 
 
 # decorator to generate token when a user signup
@@ -94,17 +94,21 @@ class LogoutView(APIView):
 
 
 # view for handling file uploads
-class FileListApiView(APIView):
+class FolderApiView(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
-    serializer_class = FileListSerializer
+    serializer_class = FolderSerializer
 
     # get list of files
     def get(self, request, *args, **kwargs):
-        print(request.user)
-        queryset = File.objects.filter(username= request.user)
-        serializer = FileListSerializer(queryset, many=True)
-        return Response(serializer.data, status=200)
+        print(request.folder.path)
+        folder = request.user + str(request.folder.path)
+        files = File.objects.filter(folder_path__iexact=folder, username__iexact=request.user).values('folder_id')
+        childfolders = FolderModel.objects.filter(parent_folder__iexact=folder, username__iexact=request.user).values('folder_id')
+        # serializer = FolderSerializer(querysetFiles, many=True)
+        print(files)
+        # return Response(serializer.data, status=200)
+        return Response(status=200)
 
 
 # view for handling uploading of a file
@@ -117,11 +121,18 @@ class FileUploadAPIView(APIView):
         return self.create(request)
 
     def create(self, request):
-        file_obj = File(filename = request.data.get('filename'),
-                        file = request.FILES['file'],
-                        username = request.user)
-        file_obj.save()
-        return Response(status=204)
+        request.data['folder_path'] = request.user + '/' +request.data.get('folder_path')
+        serializer = self.serializer_class(data=request.data)
+        print(serializer)
+        if serializer.is_valid(raise_exception=Response(status=400)):
+        # file_obj = File(filename = request.data.get('filename'),
+        #                 file = request.FILES['file'],
+        #                 folder_path = folder_path,
+        #                 username = request.user)
+            serializer.save()
+            return Response(status=204)
+        else:
+            return Response(status=400)  # if folder does not exists
 
 
 # view for deleting a file
@@ -129,3 +140,21 @@ class DeleteFileApiview(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = (SessionAuthentication, )
     serializer_class = FileDeleteSerializer
+
+
+# view to make folder
+class MakeFolderApiview(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    serializer_class = MakeFolderSerailizer
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
