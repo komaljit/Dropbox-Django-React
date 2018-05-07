@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer, FileDeleteSerializer,
-                          UserDetailSerializer, FolderSerializer, FileUploadSerializer, MakeFolderSerailizer)
+                          UserDetailSerializer, FolderSerializer, FileUploadSerializer, MakeFolderSerializer)
 
 
 # decorator to generate token when a user signup
@@ -104,10 +104,8 @@ class FolderApiView(APIView):
         print(request.folder.path)
         folder = request.user + str(request.folder.path)
         files = File.objects.filter(folder_path__iexact=folder, username__iexact=request.user).values('folder_id')
-        childfolders = FolderModel.objects.filter(parent_folder__iexact=folder, username__iexact=request.user).values('folder_id')
-        # serializer = FolderSerializer(querysetFiles, many=True)
+        childfolders = Folder.objects.filter(parent_folder__iexact=folder, username__iexact=request.user).values('folder_id')
         print(files)
-        # return Response(serializer.data, status=200)
         return Response(status=200)
 
 
@@ -146,7 +144,7 @@ class DeleteFileApiview(DestroyAPIView):
 class MakeFolderApiview(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
-    serializer_class = MakeFolderSerailizer
+    serializer_class = MakeFolderSerializer
 
     def post(self, request, *args, **kwargs):
         return self.create(request)
@@ -157,4 +155,3 @@ class MakeFolderApiview(CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
