@@ -22,13 +22,13 @@ class SignupSerializer(ModelSerializer):
         first_name = validated_data['first_name']
         last_name = validated_data['last_name']
         user_obj = User(
-            username = username,
-            first_name = first_name,
-            last_name = last_name
+            username=username,
+            first_name=first_name,
+            last_name=last_name
         )
         user_obj.set_password(password)
         user_obj.save()
-        Folder(folder_path = username,username=user_obj)    # creating a virtual base folders to track user files
+        Folder(folder_path=username, username=user_obj)    # creating a virtual base folders to track user files
         generate_token(user_obj)
         return validated_data
 
@@ -37,8 +37,8 @@ class UpdateSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username','password','email','first_name','last_name')
-        extra_kwargs = {'password':{'write_only':True}}
+        fields = ('username', 'password', 'email', 'first_name', 'last_name')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def update(self, instance, validated_data):
         print(instance)
@@ -94,8 +94,8 @@ class FileDeleteSerializer(ModelSerializer):
         extra_kwargs = {'username': {'read_only': True}}
 
 
-class MakeFolderSerailizer(ModelSerializer):
+class MakeFolderSerializer(ModelSerializer):
 
     class Meta:
         Model = Folder
-        fields = ('foldername','folder_path')
+        fields = ('foldername', 'folder_path')
