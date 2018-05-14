@@ -115,22 +115,18 @@ class FileUploadAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = FileUploadSerializer
 
-    def post(self,request):
+    def post(self, request):
         return self.create(request)
 
     def create(self, request):
-        request.data['folder_path'] = request.user + '/' +request.data.get('folder_path')
+        # print(request.data.get('folder_path'))
+        folder = Folder.objects.get(folder_path=request.data.get('folder_path'))
+        request.data['folder_path'] = folder
         serializer = self.serializer_class(data=request.data)
         print(serializer)
         if serializer.is_valid(raise_exception=Response(status=400)):
-        # file_obj = File(filename = request.data.get('filename'),
-        #                 file = request.FILES['file'],
-        #                 folder_path = folder_path,
-        #                 username = request.user)
             serializer.save()
             return Response(status=204)
-        else:
-            return Response(status=400)  # if folder does not exists
 
 
 # view for deleting a file
