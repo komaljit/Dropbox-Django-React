@@ -1,9 +1,11 @@
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.views import APIView, status
 from .models import File, Folder
+from django.conf import settings
 from rest_framework.response import Response
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
+from django.views.static import serve
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -101,12 +103,14 @@ class FolderApiView(APIView):
 
     # get list of files
     def get(self, request, *args, **kwargs):
-        print(request.folder.path)
-        folder = request.user + str(request.folder.path)
-        files = File.objects.filter(folder_path__iexact=folder, username__iexact=request.user).values('folder_id')
-        childfolders = Folder.objects.filter(parent_folder__iexact=folder, username__iexact=request.user).values('folder_id')
-        print(files)
-        return Response(status=200)
+        folder = str(request.user) + '/'
+        if request.data.get('folder_path'):
+            folder += request.data.get('folder_path')
+        folder = Folder.objects.get(folder_path=folder)
+        files = File.objects.filter(folder_path=folder)
+        child_folders = Folder.objects.filter(folder_parent=folder)
+        serialized_data = self.serializer_class(files, many=True)
+        return Response(serialized_data.data, status=200)
 
 
 # view for handling uploading of a file
@@ -127,6 +131,16 @@ class FileUploadAPIView(APIView):
         if serializer.is_valid(raise_exception=Response(status=400)):
             serializer.save()
             return Response(status=204)
+
+
+class DownloadFileApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        file = request.get('file')
+        file_path = settings.MEDIA_ROOT
+        return serve(request, path=file, document_root=file_path)
 
 
 # view for deleting a file
