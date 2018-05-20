@@ -2,6 +2,7 @@ from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIVie
 from rest_framework.views import APIView, status
 from .models import File, Folder
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
@@ -9,8 +10,8 @@ from django.views.static import serve
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer, FileDeleteSerializer,
-                          UserDetailSerializer, FolderSerializer, FileUploadSerializer, MakeFolderSerializer)
+from .serializers import (LoginSerializer, SignupSerializer, UpdateSerializer,UserDetailSerializer,
+                          FolderSerializer, FileUploadSerializer, MakeFolderSerializer)
 
 
 # decorator to generate token when a user signup
@@ -37,11 +38,10 @@ class LoginAPI(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
-        print(request.user)
         user = authenticate(username=username, password=password)
         login(request, user)
         if user:
-            return Response({"user" : str(user)},status=200)
+            return Response({"user": str(user)}, status=200)
         else:
             return Response({"error": "Wrong Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -133,21 +133,28 @@ class FileUploadAPIView(APIView):
             return Response(status=204)
 
 
-class DownloadFileApiView(APIView):
+class DownloadFileApiView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
+    lookup_field = 'filename'
 
-    def get(self, request):
-        file = request.get('file')
+    def get(self, request, *args, **kwargs):
+        print(self.kwargs[self.lookup_field])
         file_path = settings.MEDIA_ROOT
-        return serve(request, path=file, document_root=file_path)
+        return serve(request, path=self.kwargs[self.lookup_field], document_root=file_path)
 
 
 # view for deleting a file
 class DeleteFileApiview(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = (SessionAuthentication, )
-    serializer_class = FileDeleteSerializer
+    lookup_field = 'filename'
+
+    def destroy(self, request, *args, **kwargs):
+        print(kwargs['filename'])
+        instance = get_object_or_404(File, file=kwargs['filename'])
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # view to make folder
